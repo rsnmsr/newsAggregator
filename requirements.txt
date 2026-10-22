@@ -1,3 +1,6 @@
 fastapi
 uvicorn[standard]
 pydantic-settings
+feedparser
+httpx
+SQLAlchemy==2.0.55
