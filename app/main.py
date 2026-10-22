@@ -14,5 +14,5 @@ def health():
     return {"status": "ok"}
 
 @app.get('/feeds')
-async def feedKeys()->list[str]:
+async def feedKeys():
     return await get_feed()
