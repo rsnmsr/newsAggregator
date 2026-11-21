@@ -1,4 +1,4 @@
-from app.models.feed import Feed
 from app.models.article import Article
+from app.models.rss_source import RSSSource
 
-__all__ = ["Feed", "Article"]
+__all__ = ["Article", "RSSSource"]

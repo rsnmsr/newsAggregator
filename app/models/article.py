@@ -4,6 +4,7 @@ from sqlalchemy import (
     Boolean,
     DateTime,
     ForeignKey,
+    Index,
     Integer,
     String,
     UniqueConstraint,
@@ -21,8 +22,8 @@ class Article(Base):
         primary_key=True,
     )
 
-    feed_id: Mapped[int] = mapped_column(
-        ForeignKey("feeds.id"),
+    source_id: Mapped[int] = mapped_column(
+        ForeignKey("rss_sources.id"),
         nullable=False,
     )
 
@@ -51,20 +52,27 @@ class Article(Base):
         nullable=True,
     )
 
+    published_day: Mapped[str | None] = mapped_column(
+        String(10),
+        nullable=True,
+        index=True,
+    )
+
     processed: Mapped[bool] = mapped_column(
         Boolean,
         default=False,
         nullable=False,
     )
 
-    feed: Mapped["Feed"] = relationship(
+    source: Mapped["RSSSource"] = relationship(
         back_populates="articles",
     )
 
     __table_args__ = (
         UniqueConstraint(
-            "feed_id",
+            "source_id",
             "external_id",
-            name="uq_feed_article",
+            name="uq_source_article",
         ),
+        Index("ix_articles_source_published_day", "source_id", "published_day"),
     )

@@ -1,10 +1,12 @@
 from fastapi import FastAPI
 
-from app.api.feeds import router as feeds_router
+from app.api.articles import router as articles_router
+from app.api.sources import router as sources_router
 from app.db.init_db import init_db
 
 app = FastAPI(title="News Aggregator")
-app.include_router(feeds_router)
+app.include_router(sources_router)
+app.include_router(articles_router)
 
 
 @app.on_event("startup")
