@@ -1,42 +1,67 @@
-# This services fetch RSS feed and can call rss parser
 import feedparser
-import json
+import logging
+from datetime import datetime, timezone
 
-rss_feeds = {'bbc':'https://feeds.bbci.co.uk/news/rss.xml',
-             'techcrunch':'https://techcrunch.com/feed/',
-             'theverge': 'https://www.theverge.com/rss/index.xml',
-             'ycombinator': 'https://news.ycombinator.com/rss',
-             'huggingface':'https://huggingface.co/blog/feed.xml',
-             'github':'https://github.blog/feed/',
-             'bleeping': 'https://www.bleepingcomputer.com/feed/',
-             'nature':'https://www.nature.com/nature.rss',
-             'nasa': 'https://www.nasa.gov/news-release/feed/',
-             'business_standard': 'https://www.business-standard.com/rss/home_page_top_stories.rss',
-             'npr': 'https://feeds.npr.org/1001/rss.xml',
-             'livemint':'https://www.livemint.com/rss/news',
-             }
+from sqlalchemy.orm import Session
 
-async def get_feed():
-    fetch_rss()
-    return fetch_rss()
+from app.db.sessions import SessionLocal
+from app.models import Feed
 
-def fetch_rss():
+
+logger = logging.getLogger(__name__)
+
+
+def fetch_rss(db: Session):
     article_table = []
-    for url_source,url_key in rss_feeds.items():
-        feed = feedparser.parse(url_key)
-        etag = feed.get("etag")
-        modified = feed.get("modified")
-        for entry in feed.entries:
+
+    saved_feeds = db.query(Feed).order_by(Feed.id).all()
+    logger.info("Fetching %d saved RSS feeds", len(saved_feeds))
+
+    for saved_feed in saved_feeds:
+        logger.info("Fetching RSS feed id=%d url=%s", saved_feed.id, saved_feed.url)
+        parsed_feed = feedparser.parse(saved_feed.url)
+
+        if parsed_feed.bozo:
+            logger.warning(
+                "Could not fully parse RSS feed id=%d url=%s: %s",
+                saved_feed.id,
+                saved_feed.url,
+                parsed_feed.bozo_exception,
+            )
+
+        logger.info(
+            "Parsed RSS feed id=%d url=%s: %d entries",
+            saved_feed.id,
+            saved_feed.url,
+            len(parsed_feed.entries),
+        )
+
+        saved_feed.etag = parsed_feed.get("etag")
+        saved_feed.last_modified = parsed_feed.get("modified")
+        saved_feed.last_fetched_at = datetime.now(timezone.utc)
+
+        for entry in parsed_feed.entries:
+            title = getattr(getattr(entry, "title_detail", None), "value", None)
+            if title is None:
+                title = getattr(entry, "title", "")
+
             article = {
-                "title": entry.title_detail.value,
-                "url": entry.link,
-                "published": entry.published if hasattr(entry, 'published') else entry.updated if hasattr(entry, 'updated') else '',
-                "summary": entry.summary if hasattr(entry, 'summary') else '',
-                "source": url_source,
+                "title": title,
+                "url": getattr(entry, "link", ""),
+                "published": getattr(entry, "published", getattr(entry, "updated", "")),
+                "summary": getattr(entry, "summary", ""),
+                "source": saved_feed.url,
             }
             article_table.append(article)
-    return json.dumps(article_table)
+
+    db.commit()
+    return article_table
 
 
-if __name__=="__main__":
-    fetch_rss()
+def get_feed(db: Session):
+    return fetch_rss(db)
+
+
+if __name__ == "__main__":
+    with SessionLocal() as db:
+        fetch_rss(db)

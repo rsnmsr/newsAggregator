@@ -221,3 +221,9 @@ __marimo__/
 
 # any db
 *.db
+*.db-shm
+*.db-wal
+*.db-journal
+*.sqlite
+*.sqlite3
+*.sqlite3-journal

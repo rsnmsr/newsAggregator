@@ -54,7 +54,7 @@ wheels = [
 [[package]]
 name = "developernews"
 version = "0.1.0"
-source = { editable = "." }
+source = { virtual = "." }
 dependencies = [
     { name = "fastapi" },
     { name = "feedparser" },
