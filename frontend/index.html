@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f5f3ee">
+    <meta
+      name="description"
+      content="A focused dashboard for reading the latest developer and technology news."
+    >
+    <title>Developer News</title>
+    <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/static/styles.css">
+    <script src="/static/app.js" defer></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="/" aria-label="Developer News home">
+        <span class="brand-mark" aria-hidden="true">D</span>
+        <span>
+          <strong>Developer News</strong>
+          <small>Your daily signal</small>
+        </span>
+      </a>
+      <div class="header-status" aria-label="Feed status">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span id="last-updated">Connecting…</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero" aria-labelledby="page-title">
+        <div>
+          <p class="eyebrow">Curated from your feeds</p>
+          <h1 id="page-title">Stay sharp.<br><em>Skip the noise.</em></h1>
+          <p class="hero-copy">
+            The latest stories in development, AI, science, and technology,
+            collected in one calm reading space.
+          </p>
+        </div>
+        <div class="hero-stats" aria-label="News summary">
+          <div class="stat">
+            <strong id="article-count">—</strong>
+            <span>stories</span>
+          </div>
+          <div class="stat">
+            <strong id="unread-count">—</strong>
+            <span>unread</span>
+          </div>
+          <button class="refresh-button" id="fetch-button" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M20 11a8.1 8.1 0 0 0-15.5-2M4 4v5h5M4 13a8.1 8.1 0 0 0 15.5 2M20 20v-5h-5"/>
+            </svg>
+            <span>Refresh feeds</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="news-section" aria-labelledby="news-heading">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">The latest</p>
+            <h2 id="news-heading">Today’s reading list</h2>
+          </div>
+          <div class="view-controls" aria-label="Article status filter">
+            <button class="view-button is-active" data-view="all" type="button">All</button>
+            <button class="view-button" data-view="unread" type="button">Unread</button>
+            <button class="view-button" data-view="read" type="button">Read</button>
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <label class="search-field">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="11" cy="11" r="7"></circle>
+              <path d="m16 16 4 4"></path>
+            </svg>
+            <span class="sr-only">Search articles</span>
+            <input id="search-input" type="search" placeholder="Search the headlines" autocomplete="off">
+          </label>
+          <label class="date-field">
+            <span>Date</span>
+            <input id="date-filter" type="date">
+          </label>
+          <button class="clear-button" id="clear-filters" type="button" hidden>Clear filters</button>
+        </div>
+
+        <div class="results-meta">
+          <p id="result-count" aria-live="polite">Loading stories…</p>
+        </div>
+
+        <div class="skeleton-grid" id="loading-state" aria-label="Loading articles">
+          <div class="skeleton-card"><span></span><span></span><span></span></div>
+          <div class="skeleton-card"><span></span><span></span><span></span></div>
+          <div class="skeleton-card"><span></span><span></span><span></span></div>
+        </div>
+
+        <div class="article-grid" id="article-grid" hidden></div>
+        <button class="load-more" id="load-more" type="button" hidden>
+          Load more stories
+        </button>
+
+        <div class="empty-state" id="empty-state" hidden>
+          <span class="empty-icon" aria-hidden="true">⌁</span>
+          <h3 id="empty-title">No stories found</h3>
+          <p id="empty-copy">Try changing your filters or refreshing the feeds.</p>
+          <button id="empty-refresh" type="button">Refresh feeds</button>
+        </div>
+
+        <div class="error-state" id="error-state" role="alert" hidden>
+          <strong>We couldn’t load the news.</strong>
+          <p id="error-message">Check that the API is running and try again.</p>
+          <button id="retry-button" type="button">Try again</button>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <span>Developer News</span>
+      <span>Less scrolling. More knowing.</span>
+    </footer>
+
+    <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+  </body>
+</html>
